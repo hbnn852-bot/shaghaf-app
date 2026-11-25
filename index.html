@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>شغف | مجمع أم كلثوم الثانوي</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: #f8fbff;
+      color: #1e293b;
+    }
+    .sky-gradient {
+      background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 50%, #bae6fd 100%);
+    }
+    .card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(14, 165, 233, 0.08);
+    }
+    .tab-active {
+      background-color: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 9999px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- الشعار المدمج كـ SVG عالي الدقة ليعمل في أي مكان بدون روابط خارجية -->
+  <template id="logo-template">
+    <svg viewBox="0 0 220 230" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="#38bdf8"/>
+          <stop offset="60%" stop-color="#7dd3fc"/>
+          <stop offset="100%" stop-color="#bae6fd"/>
+        </linearGradient>
+        <linearGradient id="bookGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#0284c7"/>
+          <stop offset="50%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#0284c7"/>
+        </linearGradient>
+      </defs>
+      <!-- النجمة الذهبية -->
+      <polygon points="110,16 114,27 125,27 116,34 119,45 110,38 101,45 104,34 95,27 106,27" fill="#eab308"/>
+      <!-- الشعلة -->
+      <path d="M110,48 C110,48 134,74 134,96 C134,110 123,120 110,120 C97,120 86,110 86,96 C86,84 96,70 102,64 C100,74 106,79 106,79 C106,79 103,62 110,48 Z" fill="url(#flameGrad)"/>
+      <path d="M110,76 C110,76 121,88 121,99 C121,106 116,112 110,112 C104,112 99,106 99,99 C99,91 106,82 110,76 Z" fill="#ffffff" opacity="0.75"/>
+      <!-- الكتاب المفتوح -->
+      <path d="M44,112 C68,108 92,114 110,126 C128,114 152,108 176,112 L182,134 C156,129 130,135 110,147 C90,135 64,129 38,134 Z" fill="url(#bookGrad)"/>
+      <path d="M52,102 C74,99 95,105 110,117 C125,105 146,99 168,102 L172,118 C150,114 128,120 110,132 C92,120 70,114 48,118 Z" fill="#e0f2fe"/>
+      <!-- النص -->
+      <text x="110" y="188" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="900" font-size="44" fill="#0f172a">شغف</text>
+      <text x="110" y="214" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="700" font-size="14" fill="#475569">مجمع أم كلثوم الثانوي</text>
+    </svg>
+  </template>
+
+  <!-- ==================== شاشة الترحيب والدخول ==================== -->
+  <div id="auth-screen" class="min-h-screen sky-gradient flex items-center justify-center p-4">
+    <div class="bg-white/95 backdrop-blur-md w-full max-w-md rounded-3xl p-6 sm:p-8 card-shadow border border-sky-100">
+      <!-- الشعار -->
+      <div class="w-36 h-36 mx-auto mb-2" id="auth-logo-box"></div>
+      <p class="text-center text-sky-600 text-sm font-bold mb-6">مجتمع مدرسي تفاعلي للمبادرات، التطوع، واكتشاف المواهب</p>
+
+      <!-- أزرار التبديل بين الدخول وإنشاء حساب -->
+      <div class="grid grid-cols-2 gap-2 bg-sky-50 p-1.5 rounded-2xl mb-6">
+        <button id="btn-show-login" onclick="switchAuthMode('login')" class="py-2.5 rounded-xl font-bold text-sm transition tab-active">تسجيل الدخول</button>
+        <button id="btn-show-register" onclick="switchAuthMode('register')" class="py-2.5 rounded-xl font-bold text-sm text-sky-700 transition">إنشاء حساب جديد</button>
+      </div>
+
+      <!-- نموذج تسجيل الدخول -->
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">اسم المستخدم</label>
+          <input type="text" id="login-username" required placeholder="أدخلي اسم المستخدم" class="w-full px-4 py-3 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none bg-sky-50/40" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">كلمة المرور</label>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none bg-sky-50/40" />
+        </div>
+        <p id="login-error" class="text-red-500 text-xs font-bold hidden"></p>
+        <button type="submit" class="w-full py-3.5 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-xl shadow-md transition">دخول إلى المنصة</button>
+
+        <!-- أزرار الدخول السريع للتجربة -->
+        <div class="pt-4 border-t border-slate-100">
+          <p class="text-xs text-center text-slate-400 font-bold mb-2">تجربة فورية سريعة للمنصة:</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="quickDemoLogin('student')" class="py-2 px-3 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl text-xs font-bold border border-sky-200 transition">👩‍🎓 دخول كطالبة</button>
+            <button type="button" onclick="quickDemoLogin('teacher')" class="py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold border border-indigo-200 transition">👩‍🏫 دخول كمعلمة</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- نموذج إنشاء حساب جديد -->
+      <form id="register-form" onsubmit="handleRegister(event)" class="space-y-3.5 hidden">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1.5">نوع الحساب</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="cursor-pointer">
+              <input type="radio" name="reg-role" value="student" checked onchange="toggleRoleFields()" class="peer hidden">
+              <div class="text-center py-2.5 rounded-xl border border-sky-200 peer-checked:bg-sky-600 peer-checked:text-white font-bold text-sm transition">👩‍🎓 طالبة</div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="reg-role" value="teacher" onchange="toggleRoleFields()" class="peer hidden">
+              <div class="text-center py-2.5 rounded-xl border border-sky-200 peer-checked:bg-sky-600 peer-checked:text-white font-bold text-sm transition">👩‍🏫 معلمة</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- حقول الطالبة -->
+        <div id="student-fields" class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الثلاثي</label>
+            <input type="text" id="reg-student-name" placeholder="مثال: سارة محمد العتيبي" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الصف الدراسي</label>
+            <select id="reg-grade" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm bg-white">
+              <option value="أول ثانوي">أول ثانوي</option>
+              <option value="ثاني ثانوي">ثاني ثانوي</option>
+              <option value="ثالث ثانوي">ثالث ثانوي</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- حقول المعلمة -->
+        <div id="teacher-fields" class="space-y-3 hidden">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">اسم المعلمة</label>
+            <input type="text" id="reg-teacher-name" placeholder="مثال: أ. نورة الزهراني" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">التخصص / المجال الإشرافي</label>
+            <input type="text" id="reg-specialty" placeholder="مثال: رائدة النشاط / الحاسب الآلي" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم (للدخول)</label>
+          <input type="text" id="reg-username" required placeholder="اختر اسم مستخدم" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني</label>
+          <input type="email" id="reg-email" required placeholder="name@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
+          <input type="password" id="reg-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+        </div>
+        <p id="reg-error" class="text-red-500 text-xs font-bold hidden"></p>
+        <button type="submit" class="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-xl shadow-md transition">إنشاء الحساب والدخول</button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+        <p class="text-xs text-slate-500 font-bold">مجمع أم كلثوم الثانوي • بوابة المبادرات والتطوع والمواهب</p>
+        <p class="text-[11px] text-sky-600 font-bold mt-0.5">فكرة وتطوير الطالبة: بسمة دان</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== التطبيق الرئيسي ==================== -->
+  <div id="main-app" class="hidden flex-1 flex flex-col">
+    <!-- الهيدر -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-sky-100 sticky top-0 z-40">
+      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-11 h-11" id="header-logo-box"></div>
+          <div>
+            <h1 class="font-black text-lg text-slate-800 leading-none">منصة شغف</h1>
+            <span class="text-[11px] text-sky-600 font-bold">مجمع أم كلثوم الثانوي</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="header-user-badge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-bold border border-sky-100"></span>
+          <button onclick="logout()" class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition">خروج</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- شريط التنقل للطالبة -->
+    <nav id="student-nav" class="bg-white border-b border-sky-100 hidden overflow-x-auto">
+      <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center gap-2 min-w-max">
+        <button onclick="switchStudentTab('home')" data-stab="home" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold transition tab-active">🏠 الرئيسية</button>
+        <button onclick="switchStudentTab('initiatives')" data-stab="initiatives" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">💡 المبادرات</button>
+        <button onclick="switchStudentTab('volunteering')" data-stab="volunteering" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">🤝 التطوع</button>
+        <button onclick="switchStudentTab('talent')" data-stab="talent" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">✨ موهبة</button>
+        <button onclick="switchStudentTab('profile')" data-stab="profile" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">👤 حسابي الشخصي</button>
+      </div>
+    </nav>
+
+    <!-- شريط التنقل للمعلمة -->
+    <nav id="teacher-nav" class="bg-white border-b border-sky-100 hidden overflow-x-auto">
+      <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center gap-2 min-w-max">
+        <button onclick="switchTeacherTab('dashboard')" data-ttab="dashboard" class="ttab-btn px-4 py-2 rounded-xl text-sm font-bold transition tab-active">📊 لوحة التحكم والإطلاق</button>
+        <button onclick="switchTeacherTab('participants')" data-ttab="participants" class="ttab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">✅ اعتماد المشاركات والساعات</button>
+        <button onclick="switchTeacherTab('moderation')" data-ttab="moderation" class="ttab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">🛡️ إشراف قسم موهبة</button>
+        <button onclick="switchTeacherTab('tprofile')" data-ttab="tprofile" class="ttab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">👤 حسابي الشخصي</button>
+      </div>
+    </nav>
+
+    <!-- المحتوى الديناميكي -->
+    <main id="app-content" class="flex-1 max-w-6xl w-full mx-auto px-4 py-6"></main>
+
+    <!-- الفوتر -->
+    <footer class="bg-white border-t border-sky-100 py-4 text-center text-xs text-slate-500 mt-10">
+      <p class="font-bold text-slate-700">منصة شغف • مجمع أم كلثوم الثانوي</p>
+      <p class="text-sky-600 font-bold mt-0.5">إعداد وتطوير الطالبة: بسمة دان</p>
+    </footer>
+  </div>
+
+  <!-- نافذة عرض الصور المكبرة -->
+  <div id="image-modal" onclick="this.classList.add('hidden')" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+    <img id="modal-img-src" src="" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl" />
+  </div>
+
+  <script>
+    // ==================== التصنيفات الـ 17 لقسم موهبة ====================
+    const TALENT_CATEGORIES = [
+      { id: 'art', name: 'الرسم والفنون', icon: '🎨' },
+      { id: 'coding', name: 'البرمجة والتقنية', icon: '💻' },
+      { id: 'photo', name: 'التصوير', icon: '📷' },
+      { id: 'writing', name: 'الكتابة والتأليف', icon: '✍🏻' },
+      { id: 'speaking', name: 'الإلقاء والتقديم', icon: '🎤' },
+      { id: 'acting', name: 'التمثيل والأداء', icon: '🎭' },
+      { id: 'music', name: 'الموسيقى', icon: '🎼' },
+      { id: 'science', name: 'الابتكار والعلوم', icon: '🧪' },
+      { id: 'crafts', name: 'الحرف والأعمال اليدوية', icon: '🧵' },
+      { id: 'thinking', name: 'التفكير وحل المشكلات', icon: '🧠' },
+      { id: 'sports', name: 'الرياضة', icon: '🏆' },
+      { id: 'cooking', name: 'الطبخ وصناعة الحلويات', icon: '🍰' },
+      { id: 'languages', name: 'اللغات', icon: '🗣️' },
+      { id: 'design', name: 'التصميم والهندسة', icon: '🏗️' },
+      { id: 'env', name: 'البيئة والزراعة', icon: '🌱' },
+      { id: 'business', name: 'ريادة الأعمال', icon: '💡' },
+      { id: 'other', name: 'مجالات أخرى', icon: '🌟' }
+    ];
+
+    // ==================== أسئلة اختبار اكتشف موهبتك ====================
+    const QUIZ_QUESTIONS = [
+      {
+        q: "إذا أُعطيتِ يوماً كاملاً لتجربة شيء جديد، ماذا تختارين؟",
+        options: [
+          { text: "🎨 أصمم أو أرسم شيئاً إبداعياً", tags: ['art', 'design', 'crafts'] },
+          { text: "💻 أجرب البرمجة أو بناء تطبيق", tags: ['coding', 'thinking'] },
+          { text: "🧪 أكتشف وأجرب تجارب علمية", tags: ['science', 'env'] },
+          { text: "✍🏻 أكتب قصة أو مقالاً ملهماً", tags: ['writing', 'languages'] },
+          { text: "🎤 أتحدث أمام الآخرين وأقدم عرضاً", tags: ['speaking', 'acting'] },
+          { text: "📷 أصور وأوثق اللحظات الجميلة", tags: ['photo', 'art'] }
+        ]
+      },
+      {
+        q: "أي شيء يشعركِ بالحماس أكثر؟",
+        options: [
+          { text: "أن أبتكر شيئاً لم يسبق لي تجربته", tags: ['science', 'coding', 'business'] },
+          { text: "أن أعبّر عن أفكاري بطريقة فنية", tags: ['art', 'writing', 'music'] },
+          { text: "أن أحقق هدفاً بدنياً أو تحدياً رياضياً", tags: ['sports', 'thinking'] },
+          { text: "أن أقود فريقاً وأرتب العمل بذكاء", tags: ['business', 'speaking'] },
+          { text: "أن أصنع شيئاً لذيذاً أو يدوياً بيدي", tags: ['cooking', 'crafts'] }
+        ]
+      },
+      {
+        q: "إذا واجهتِ مشكلة، ما أول شيء تميلين إلى فعله؟",
+        options: [
+          { text: "أفكر في حل مختلف وغير تقليدي", tags: ['thinking', 'design', 'coding'] },
+          { text: "أبحث عن المعلومات والتجارب العلمية", tags: ['science', 'languages'] },
+          { text: "أستشير الآخرين وأتعاون معهم", tags: ['speaking', 'business'] },
+          { text: "أرسم مخططاً أو أرتب الخطوات بصرياً", tags: ['design', 'art'] }
+        ]
+      },
+      {
+        q: "أي بيئة تشعرين أنكِ تستمتعين فيها أكثر؟",
+        options: [
+          { text: "بيئة مليئة بالأفكار والألوان والإبداع", tags: ['art', 'crafts', 'photo'] },
+          { text: "بيئة تقنية وأجهزة حديثة", tags: ['coding', 'design'] },
+          { text: "بيئة طبيعية أو مختبر تجارب", tags: ['env', 'science'] },
+          { text: "بيئة اجتماعية وتفاعلية مع الجمهور", tags: ['acting', 'speaking', 'sports'] },
+          { text: "بيئة هادئة أركز فيها على القراءة أو الكتابة", tags: ['writing', 'languages', 'thinking'] }
+        ]
+      },
+      {
+        q: "لو كان بإمكانكِ تعلم مهارة جديدة الآن، ماذا تختارين؟",
+        options: [
+          { text: "تطوير التطبيقات والذكاء الاصطناعي", tags: ['coding', 'thinking'] },
+          { text: "التصميم الجرافيكي والرسم الرقمي", tags: ['art', 'design'] },
+          { text: "التصوير الفوتوغرافي والمونتاج", tags: ['photo', 'acting'] },
+          { text: "فن الإلقاء واللغات العالمية", tags: ['speaking', 'languages'] },
+          { text: "إدارة المشاريع وريادة الأعمال", tags: ['business', 'cooking'] }
+        ]
+      }
+    ];
+
+    // ==================== إدارة قاعدة البيانات المحلية الدائمة ====================
+    const DB_KEY = 'shaghaf_db_v4_no_comp';
+
+    function loadDB() {
+      const saved = localStorage.getItem(DB_KEY);
+      if (saved) return JSON.parse(saved);
+
+      const initialDB = {
+        users: [
+          {
+            id: 'u_student_demo',
+            role: 'student',
+            name: 'بسمة دان يوسف',
+            grade: 'ثالث ثانوي',
+            username: 'basma',
+            email: 'basma@school.edu.sa',
+            password: '123',
+            bio: 'طالبة شغوفة بالتقنية والعمل التطوعي والإبداع المدرسي ✨',
+            avatar: '✨',
+            avatarImg: '',
+            coverBg: 'linear-gradient(135deg, #38bdf8, #818cf8)',
+            coverImg: '',
+            interests: ['coding', 'art', 'science']
+          },
+          {
+            id: 'u_teacher_demo',
+            role: 'teacher',
+            name: 'أ. رشا الزهراني',
+            specialty: 'مشرفة النشاط الطلابي والموهوبات',
+            username: 'teacher',
+            email: 'teacher@moe.gov.sa',
+            password: '123',
+            bio: 'معلمة ومشرفة على مبادرات الطالبات في مجمع أم كلثوم الثانوي 🌸',
+            avatar: '👩‍🏫',
+            avatarImg: '',
+            coverBg: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+            coverImg: ''
+          }
+        ],
+        opportunities: [], // تبدأ فارغة تماماً بدون أي بيانات وهمية
+        participations: [],
+        starStudent: null,
+        talents: [],
+        chatMessages: {
+          art: [{ id: 'm1', userName: 'بسمة دان يوسف', text: 'أهلاً بالمبدعات في مساحة الرسم! شاركونا أفكاركم الفنية 🎨', time: 'الآن' }],
+          coding: [{ id: 'm2', userName: 'بسمة دان يوسف', text: 'من حابة نتعاون في فكرة مشروع تقني للمدرسة؟ 💻', time: 'الآن' }]
+        }
+      };
+      saveDB(initialDB);
+      return initialDB;
+    }
+
+    function saveDB(data) {
+      localStorage.setItem(DB_KEY, JSON.stringify(data));
+    }
+
+    let db = loadDB();
+    let currentUser = null;
+    let currentStudentTab = 'home';
+    let currentTeacherTab = 'dashboard';
+    let sel
